@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FXKIT — Creative Effects Studio</title>
+  <meta name="description" content="Turn any image or video into art, right in your browser. Halftone, dither, CRT glitch, ASCII, film grain, blob tracking and more. Nothing is uploaded.">
+  <meta name="theme-color" content="#15171c" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#eeebe4" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="dark light">
+  <link rel="canonical" href="https://fxkit.vercel.app/">
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="FXKIT">
+  <meta property="og:title" content="FXKIT — Run your footage through the press">
+  <meta property="og:description" content="Ten browser-based effects for images and video. Halftone, dither, CRT, film, ASCII and more. Nothing is uploaded.">
+  <meta property="og:url" content="https://fxkit.vercel.app/">
+  <meta property="og:image" content="https://fxkit.vercel.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="FXKIT proof sheet of image effects">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FXKIT — Creative Effects Studio">
+  <meta name="twitter:description" content="Ten browser-based effects for images and video. Nothing is uploaded.">
+  <meta name="twitter:image" content="https://fxkit.vercel.app/og-image.png">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/engine.js" defer></script>
+  <script src="/js/effects/halftone.js" defer></script>
+  <script src="/js/effects/dither.js" defer></script>
+  <script src="/js/effects/ascii.js" defer></script>
+  <script src="/js/effects/crt.js" defer></script>
+  <script src="/js/effects/glass.js" defer></script>
+  <script src="/js/effects/blur.js" defer></script>
+  <script src="/js/effects/film.js" defer></script>
+  <script src="/js/effects/loop.js" defer></script>
+  <script src="/js/effects/blob.js" defer></script>
+  <script src="/js/effects/beat.js" defer></script>
+  <script src="/js/main.js" defer></script>
+</head>
+<body>
+<noscript><p class="noscript">FXKIT runs entirely in your browser and needs JavaScript turned on.</p></noscript>
+<!-- Adding an effect: drop a file in js/effects/ and add a <script> line in <head>. -->
+<!-- ============ HOME ============ -->
+  <div id="view-home">
+    <header class="site-header">
+      <a class="logo" href="#/">
+        <svg class="regmark" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M12 0.5v6M12 17.5v6M0.5 12h6M17.5 12h6" stroke="currentColor" stroke-width="1.6"/>
+        </svg>
+        <b>FX<i>KIT</i></b>
+      </a>
+      <nav>
+        <a href="#tools">TOOLS</a>
+        <a href="https://github.com/User01005/FXKIT" target="_blank" rel="noopener noreferrer">SOURCE</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <span class="eyebrow">Image &amp; motion · proof sheet</span>
+      <h1>Run your footage through the press.</h1>
+      <p>Ten browser-based tools for images and video — halftone screens, dithering,
+         CRT decay, film stock, recursion and beat-synced motion. Drop a file in,
+         turn the dials, export a still or a clip. Nothing is uploaded; it all runs on your machine.</p>
+      <div class="rule"></div>
+    </section>
+
+    <section id="tools" class="tools-section">
+      <div class="sheet-head">
+        <span>Proof sheet · live renders</span>
+        <span>Hover a plate to run it</span>
+      </div>
+      <div id="tool-grid" class="tool-grid"><!-- plates injected by js --></div>
+    </section>
+
+    <footer class="site-footer">
+      Runs entirely in your browser. Your files never leave your device · <a href="/privacy">Privacy</a> · add your own effect in <code>js/effects/</code>
+    </footer>
+  </div>
+
+  <!-- ============ EDITOR ============ -->
+  <div id="view-editor" hidden>
+    <header class="editor-header">
+      <a class="back" href="#/">
+        <svg class="regmark regmark-sm" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M12 0.5v6M12 17.5v6M0.5 12h6M17.5 12h6" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        FXKIT
+      </a>
+      <div class="editor-title">
+        <span id="editor-id" class="editor-id"></span>
+        <h1 id="editor-name"></h1>
+      </div>
+      <span id="editor-tagline" class="editor-tagline"></span>
+    </header>
+
+    <div class="editor-layout">
+      <main class="stage-wrap" id="stage-wrap">
+        <canvas id="stage"></canvas>
+        <div id="drop-hint" class="drop-hint">Drop an image or video anywhere</div>
+      </main>
+
+      <aside class="panel">
+        <div class="panel-section">
+          <label class="file-btn">
+            <input type="file" id="file-input" accept="image/*,video/*">
+            Upload image / video
+            <small class="file-limits">Images up to 50&nbsp;MB · video up to 200&nbsp;MB</small>
+          </label>
+          <label class="file-btn secondary" id="audio-btn" hidden>
+            <input type="file" id="audio-input" accept="audio/*">
+            Upload audio track
+          </label>
+
+          <p id="load-error" class="load-error" role="alert" hidden></p>
+
+          <div class="control check" id="sound-row" hidden>
+            <input type="checkbox" id="preview-sound">
+            <label for="preview-sound">Play sound while editing</label>
+          </div>
+          <p class="note" id="sound-note" hidden></p>
+        </div>
+
+        <div class="panel-section grow">
+          <h3>Controls</h3>
+          <div id="controls"></div>
+        </div>
+
+        <div class="panel-section actions">
+          <button id="btn-random" class="btn secondary">Randomize</button>
+          <button id="btn-reset" class="btn secondary">Reset</button>
+
+          <div class="export-row">
+            <select id="img-format" aria-label="Image format">
+              <option value="image/png">PNG</option>
+              <option value="image/jpeg">JPG</option>
+              <option value="image/webp">WEBP</option>
+            </select>
+            <button id="btn-export" class="btn primary">Export image</button>
+          </div>
+
+          <div class="control" id="loop-row" hidden>
+            <label for="loop-dur">Loop length<output id="loop-dur-out">6s</output></label>
+            <input type="range" id="loop-dur" min="2" max="20" step="1" value="6">
+          </div>
+
+          <div class="export-row" id="record-row" hidden>
+            <select id="vid-format" aria-label="Video format"></select>
+            <button id="btn-record" class="btn primary">Export video</button>
+          </div>
+
+          <div class="progress" id="export-progress" hidden>
+            <div class="progress-bar"><i></i></div>
+            <span class="progress-text"></span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ============ EXPORT RESULT ============
+       Downloads are blocked inside sandboxed frames, so the finished file is
+       always shown here too — the preview itself can be saved or copied. -->
+  <div id="result" class="modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="result-title">
+      <header class="modal-head">
+        <h2 id="result-title">Your export is ready</h2>
+        <button id="result-close" class="modal-close" aria-label="Close">&#10005;</button>
+      </header>
+      <div id="result-preview" class="result-preview"></div>
+      <p id="result-hint" class="result-hint"></p>
+      <div class="result-actions" id="result-actions">
+        <a id="result-download" class="btn primary" download>Download</a>
+        <button id="result-copy" class="btn secondary">Copy image</button>
+      </div>
+      <p id="result-fallback" class="result-hint" hidden></p>
+    </div>
+  </div>
+
+</body>
+</html>

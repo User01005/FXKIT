@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://fxkit.vercel.app/sitemap.xml

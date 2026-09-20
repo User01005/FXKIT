@@ -1,0 +1,510 @@
+/* ============ FXKIT ============
+   Prepress proof-sheet identity: graphite chrome, CMYK registration accents.
+   Chrome stays neutral so it never biases how your image reads. */
+
+:root {
+  --ground: #15171c;
+  --panel: #1d2027;
+  --raise: #262a33;
+  --line: #313640;
+  --text: #e8eaee;
+  --muted: #8c93a1;
+  /* Two magentas on purpose: --accent backs filled surfaces and has to carry
+     white at 4.5:1, which the brighter ink can't. --accent-text is the same hue
+     lifted until it's legible as text on a dark ground. */
+  --accent: #d1006f;      /* process magenta, filled  — white on it 5.33:1 */
+  --accent-text: #f05aa5; /* magenta as text on panel — 5.42:1 */
+  --accent-2: #12b5cb;    /* process cyan */
+  --on-accent: #ffffff;
+  --checker-a: #1a1d23;
+  --checker-b: #15171c;
+
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --r: 10px;
+  --step: 18px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --ground: #eeebe4;
+    --panel: #f7f5f0;
+    --raise: #ffffff;
+    --line: #d7d2c6;
+    --text: #16181d;
+    --muted: #63666f;
+    --accent: #d1006f;
+    --accent-text: #b00059;
+    --accent-2: #0a6b7b;
+    --on-accent: #ffffff;
+    --checker-a: #e5e1d8;
+    --checker-b: #eeebe4;
+  }
+}
+
+/* Viewer's explicit toggle must win over the OS preference, both directions. */
+:root[data-theme="dark"] {
+  --ground: #15171c; --panel: #1d2027; --raise: #262a33; --line: #313640;
+  --text: #e8eaee; --muted: #8c93a1;
+  --accent: #d1006f; --accent-text: #f05aa5; --accent-2: #12b5cb;
+  --on-accent: #ffffff; --checker-a: #1a1d23; --checker-b: #15171c;
+}
+:root[data-theme="light"] {
+  --ground: #eeebe4; --panel: #f7f5f0; --raise: #ffffff; --line: #d7d2c6;
+  --text: #16181d; --muted: #63666f;
+  --accent: #d1006f; --accent-text: #b00059; --accent-2: #0a6b7b;
+  --on-accent: #ffffff; --checker-a: #e5e1d8; --checker-b: #eeebe4;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+/* Any class here that sets `display` outranks the UA's [hidden] rule, which
+   would silently strand hidden elements on screen. Settle it once, globally. */
+[hidden] { display: none !important; }
+
+body {
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: var(--mono); }
+
+:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* Touch-target sizing lives at the end of this file — see the coarse-pointer
+   block there. It has to come after the base control styles to win the cascade. */
+
+/* registration mark — the mark a press uses to align plates */
+.regmark { width: 18px; height: 18px; flex-shrink: 0; color: var(--accent-text); }
+
+.regmark-sm { width: 13px; height: 13px; }
+
+.noscript {
+  padding: 16px 20px; text-align: center;
+  background: var(--accent); color: var(--on-accent); font-weight: 600;
+}
+
+/* ---------- home ---------- */
+.site-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px;
+  padding: 16px 32px;
+  position: sticky; top: 0; z-index: 10;
+  background: color-mix(in srgb, var(--ground) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 800; font-size: 19px; letter-spacing: -0.4px;
+}
+.logo b { font-weight: 800; }
+.logo i { font-style: normal; color: var(--accent-text); }
+
+.site-header nav { display: flex; align-items: center; gap: 22px; }
+.site-header nav a {
+  font-family: var(--mono); font-size: 12px; color: var(--muted);
+  letter-spacing: 0.4px; transition: color .15s;
+}
+.site-header nav a:hover { color: var(--text); }
+
+.hero {
+  max-width: 1200px; margin: 0 auto;
+  padding: 72px 32px 40px;
+  display: grid; gap: 20px;
+}
+.hero .eyebrow {
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: 1.6px;
+  text-transform: uppercase; color: var(--accent-2);
+}
+.hero h1 {
+  font-size: clamp(38px, 6.4vw, 68px);
+  line-height: 1.02; letter-spacing: -2.4px; font-weight: 800;
+  text-wrap: balance; max-width: 15ch;
+}
+.hero p {
+  color: var(--muted); font-size: 16.5px; line-height: 1.6; max-width: 58ch;
+}
+.hero .rule {
+  height: 1px; background: var(--line); margin-top: 8px;
+}
+
+/* proof sheet grid — every plate is a live render */
+.tools-section { max-width: 1200px; margin: 0 auto; padding: 24px 32px 90px; }
+
+.sheet-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 16px; margin-bottom: 20px;
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: 1.4px;
+  text-transform: uppercase; color: var(--muted);
+}
+
+.tool-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+}
+
+.tool-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: border-color .18s, transform .18s;
+  /* Plates deal in one at a time, staggered along the grid like a sheet
+     coming off the press. --i is set per card in main.js. */
+  animation: plate-in .38s cubic-bezier(.16,1,.3,1) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+@keyframes plate-in {
+  from { opacity: 0; transform: translateY(14px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+.tool-card:hover, .tool-card:focus-visible {
+  border-color: var(--accent-text);
+  transform: translateY(-2px);
+}
+
+.plate {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: var(--raise);
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+}
+.plate canvas { width: 100%; height: 100%; display: block; }
+.plate .plate-no {
+  position: absolute; top: 8px; left: 9px;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 1px;
+  color: var(--on-accent); background: var(--accent);
+  padding: 2px 6px; border-radius: 3px;
+}
+
+.tool-card .body { padding: 14px 16px 16px; display: grid; gap: 7px; }
+.tool-card h3 { font-size: 16.5px; font-weight: 700; letter-spacing: -0.2px; }
+.tool-card p { color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+.tool-card .open {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.8px;
+  color: var(--accent-2); text-transform: uppercase; margin-top: 2px;
+}
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding: 24px 32px; text-align: center;
+  color: var(--muted); font-size: 12.5px; font-family: var(--mono);
+}
+.site-footer code { color: var(--accent-2); }
+
+/* ---------- simple pages (privacy, 404) ---------- */
+.doc-page { padding-bottom: 72px; min-height: calc(100vh - 140px); align-content: start; }
+.doc-body { display: grid; gap: 14px; max-width: 62ch; }
+.doc-body h2 { font-size: 18px; letter-spacing: -0.2px; margin-top: 10px; }
+.doc-body p, .doc-page > p { color: var(--muted); font-size: 15.5px; line-height: 1.65; }
+.doc-body a { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
+.doc-date { font-family: var(--mono); font-size: 12px; }
+.doc-cta { display: inline-block; padding: 12px 18px; }
+
+/* ---------- editor ---------- */
+#view-editor { display: flex; flex-direction: column; height: 100vh; }
+
+.editor-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  flex-wrap: wrap;
+}
+.editor-header .back {
+  display: flex; align-items: center; gap: 7px;
+  font-family: var(--mono); font-size: 12px; color: var(--muted);
+  padding: 6px 11px; border: 1px solid var(--line); border-radius: 7px;
+  transition: all .15s;
+}
+.editor-header .back:hover { color: var(--text); border-color: var(--accent); }
+.editor-title { display: flex; align-items: center; gap: 9px; }
+.editor-header h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.2px; }
+.editor-id {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 1px;
+  color: var(--on-accent); background: var(--accent);
+  padding: 2px 6px; border-radius: 3px;
+}
+.editor-tagline {
+  color: var(--muted); font-size: 12.5px; flex: 1; min-width: 0;
+}
+
+.editor-layout { display: flex; flex: 1; min-height: 0; }
+
+.stage-wrap {
+  flex: 1; display: grid; place-items: center;
+  padding: 22px; overflow: hidden; position: relative;
+  background:
+    repeating-conic-gradient(var(--checker-a) 0% 25%, var(--checker-b) 0% 50%)
+    0 0 / 22px 22px;
+}
+#stage {
+  max-width: 100%; max-height: 100%;
+  border-radius: 6px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.45);
+}
+.drop-hint {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 11px; letter-spacing: .5px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--ground) 86%, transparent);
+  padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line);
+  pointer-events: none;
+}
+.stage-wrap.dragover { outline: 2px dashed var(--accent); outline-offset: -8px; }
+
+.panel {
+  width: 312px; flex-shrink: 0;
+  background: var(--panel);
+  border-left: 1px solid var(--line);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+}
+.panel-section {
+  padding: 16px; border-bottom: 1px solid var(--line);
+  display: grid; gap: 10px; align-content: start;
+}
+.panel-section.grow { flex: 1; }
+.panel-section h3 {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 1.4px;
+  text-transform: uppercase; color: var(--muted); font-weight: 500;
+}
+
+.file-btn {
+  display: block; text-align: center; cursor: pointer;
+  padding: 10px; border-radius: 8px; font-size: 13.5px; font-weight: 650;
+  background: var(--accent); color: var(--on-accent);
+  transition: filter .15s;
+}
+.file-btn:hover { filter: brightness(1.08); }
+.file-btn.secondary {
+  background: var(--raise); color: var(--text); border: 1px solid var(--line);
+}
+.file-btn input { display: none; }
+.file-btn .file-limits {
+  display: block; margin-top: 3px;
+  font-family: var(--mono); font-size: 10.5px; font-weight: 400; opacity: .82;
+}
+
+.load-error {
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.5;
+  color: var(--accent-text);
+  border: 1px solid var(--accent-text); border-radius: 7px;
+  padding: 8px 10px;
+}
+.site-footer a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+
+#controls { display: grid; gap: 13px; }
+
+.note {
+  font-family: var(--mono); font-size: 11px; line-height: 1.5; color: var(--muted);
+}
+.note b { color: var(--accent-2); font-weight: 400; }
+
+.control { display: grid; gap: 5px; }
+.control label {
+  display: flex; justify-content: space-between; gap: 10px;
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: .3px;
+  color: var(--muted);
+}
+.control label output {
+  color: var(--accent-2); font-variant-numeric: tabular-nums;
+}
+
+.control input[type="range"] {
+  width: 100%; appearance: none; height: 3px; border-radius: 2px;
+  background: var(--line); outline: none; cursor: pointer;
+}
+.control input[type="range"]::-webkit-slider-thumb {
+  appearance: none; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); border: none; cursor: pointer;
+}
+.control input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); border: none; cursor: pointer;
+}
+
+.control select {
+  width: 100%; padding: 7px 9px; border-radius: 7px;
+  background: var(--raise); color: var(--text);
+  border: 1px solid var(--line); font-size: 12.5px; font-family: var(--mono);
+  cursor: pointer;
+}
+
+.control input[type="color"] {
+  width: 100%; height: 30px; border: 1px solid var(--line);
+  border-radius: 7px; background: var(--raise); cursor: pointer; padding: 3px;
+}
+
+.control.check {
+  grid-auto-flow: column; grid-template-columns: auto 1fr;
+  justify-content: start; align-items: center; gap: 9px;
+}
+.control.check label { margin: 0; color: var(--text); }
+.control.check input { accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; }
+
+.actions { grid-template-columns: 1fr 1fr; }
+
+.export-row {
+  grid-column: span 2;
+  display: grid; grid-template-columns: 84px 1fr; gap: 8px;
+}
+.export-row select {
+  padding: 7px 8px; border-radius: 8px;
+  background: var(--raise); color: var(--text);
+  border: 1px solid var(--line);
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: .4px;
+  cursor: pointer;
+}
+
+#loop-row { grid-column: span 2; }
+
+.progress { grid-column: span 2; display: grid; gap: 6px; }
+.progress-bar {
+  height: 4px; border-radius: 2px; background: var(--line); overflow: hidden;
+}
+.progress-bar i {
+  display: block; height: 100%; width: 0;
+  background: var(--accent-2); transition: width .18s linear;
+}
+.progress-text {
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.btn {
+  padding: 10px; border-radius: 8px; border: none; cursor: pointer;
+  font-size: 13px; font-weight: 650; font-family: var(--sans);
+  transition: filter .15s;
+}
+.btn:hover { filter: brightness(1.12); }
+/* No grid-column here on purpose: primary buttons live inside .export-row's
+   own two-column grid, and a span rule would knock them onto a second row. */
+.btn.primary { background: var(--accent); color: var(--on-accent); }
+.btn.secondary { background: var(--raise); color: var(--text); border: 1px solid var(--line); }
+.btn.recording { background: var(--accent-2); color: var(--on-accent); }
+
+/* ---------- export result ---------- */
+.modal {
+  position: fixed; inset: 0; z-index: 50;
+  display: grid; place-items: center;
+  padding: 24px;
+  background: color-mix(in srgb, #000 62%, transparent);
+  backdrop-filter: blur(4px);
+}
+.modal-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  width: min(680px, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 18px;
+  display: grid; gap: 14px;
+  box-shadow: 0 24px 70px rgba(0,0,0,.5);
+}
+
+.modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.modal-head h2 { font-size: 16px; font-weight: 700; letter-spacing: -0.2px; }
+.modal-close {
+  background: none; border: 1px solid var(--line); color: var(--muted);
+  width: 28px; height: 28px; border-radius: 7px; cursor: pointer; font-size: 13px;
+  transition: color .15s, border-color .15s;
+}
+.modal-close:hover { color: var(--text); border-color: var(--accent); }
+
+.result-preview {
+  display: grid; place-items: center;
+  background:
+    repeating-conic-gradient(var(--checker-a) 0% 25%, var(--checker-b) 0% 50%)
+    0 0 / 18px 18px;
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px; min-height: 140px;
+}
+.result-preview img, .result-preview video {
+  max-width: 100%; max-height: 46vh; display: block; border-radius: 4px;
+}
+
+.result-hint {
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.55; color: var(--muted);
+}
+.result-hint b { color: var(--accent-2); font-weight: 400; }
+
+.result-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.result-actions.solo { grid-template-columns: 1fr; }
+.result-actions .btn { text-align: center; text-decoration: none; }
+
+@media (max-width: 760px) {
+  .site-header, .hero, .tools-section { padding-left: 18px; padding-right: 18px; }
+  .hero { padding-top: 44px; }
+
+  /* Stack the editor and let the page scroll as one, rather than trapping the
+     controls in a nested scroller that overflows the viewport-height shell. */
+  #view-editor { height: auto; min-height: 100vh; }
+  .editor-layout { flex-direction: column; min-height: 0; }
+  .panel {
+    width: 100%; border-left: none; border-top: 1px solid var(--line);
+    overflow: visible;
+  }
+  .stage-wrap { min-height: 46vh; }
+  .editor-tagline { display: none; }
+}
+
+/* Nothing to drag on a touch screen, and the hint sits over the artwork. */
+@media (pointer: coarse) {
+  .drop-hint { display: none; }
+}
+
+/* ---------- touch targets ----------
+   Last in the file on purpose: these override the base control sizes, and at
+   equal specificity the later rule wins. A coarse pointer gets the 44px
+   minimum; a mouse doesn't need the bulk in a panel this dense. */
+@media (pointer: coarse) {
+  .btn,
+  .file-btn,
+  .control select,
+  .export-row select,
+  .editor-header .back,
+  .result-actions .btn {
+    min-height: 44px;
+  }
+
+  .modal-close { width: 44px; height: 44px; }
+
+  /* Grow the slider's hit area without fattening the visible track. */
+  .control input[type="range"] {
+    height: 24px;
+    background: none;
+  }
+  .control input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px; border-radius: 2px; background: var(--line);
+  }
+  .control input[type="range"]::-moz-range-track {
+    height: 4px; border-radius: 2px; background: var(--line);
+  }
+  .control input[type="range"]::-webkit-slider-thumb {
+    width: 20px; height: 20px; margin-top: -8px;
+  }
+  .control input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; }
+
+  .control.check { min-height: 44px; }
+  .control.check input { width: 22px; height: 22px; }
+}

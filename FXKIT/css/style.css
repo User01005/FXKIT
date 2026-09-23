@@ -354,6 +354,13 @@ code, .mono { font-family: var(--mono); }
   border-radius: 7px; background: var(--raise); cursor: pointer; padding: 3px;
 }
 
+.control input[type="text"] {
+  width: 100%; padding: 7px 9px; border-radius: 7px;
+  background: var(--raise); color: var(--text);
+  border: 1px solid var(--line); font-size: 13px; font-family: var(--mono);
+}
+.control input[type="text"]::placeholder { color: var(--muted); opacity: .7; }
+
 .control.check {
   grid-auto-flow: column; grid-template-columns: auto 1fr;
   justify-content: start; align-items: center; gap: 9px;

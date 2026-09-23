@@ -200,6 +200,22 @@
           state.params[p.key] = e.target.checked;
           state.dirty = true;
         });
+      } else if (p.type === 'text') {
+        // Built with createElement rather than innerHTML: the value is
+        // whatever the visitor types, and it must never be interpolated
+        // into markup.
+        const label = document.createElement('label');
+        label.textContent = p.label;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = state.params[p.key];
+        if (p.maxlength) input.maxLength = p.maxlength;
+        if (p.placeholder) input.placeholder = p.placeholder;
+        input.addEventListener('input', () => {
+          state.params[p.key] = input.value;
+          state.dirty = true;
+        });
+        wrap.append(label, input);
       }
       controlsEl.appendChild(wrap);
     }
